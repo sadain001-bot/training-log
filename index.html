@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Training Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F2F4F1; --panel:#FFFFFF; --ink:#18211D; --muted:#5D6A64; --line:#DCE2DE; --soft:#E8EDEA;
+  --accent:#2C55E0; --accent-soft:#DDE5FC; --done:#1F8F5A; --done-soft:#D5EFE1; --warn:#B8610F;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1412; --panel:#171D1A; --ink:#E4EAE6; --muted:#93A09A; --line:#2A332F; --soft:#1F2724;
+    --accent:#7C98FF; --accent-soft:#232E52; --done:#4CC98A; --done-soft:#17362A; --warn:#E3964A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1412; --panel:#171D1A; --ink:#E4EAE6; --muted:#93A09A; --line:#2A332F; --soft:#1F2724;
+  --accent:#7C98FF; --accent-soft:#232E52; --done:#4CC98A; --done-soft:#17362A; --warn:#E3964A;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+#app{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:24px 48px}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.01em;margin:0;text-wrap:balance;line-height:1.05}
+h1{font-size:44px;text-transform:uppercase}
+h2{font-size:24px;text-transform:uppercase}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px}
+.top .meta{color:var(--muted)}
+.banner{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:13px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 12px;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted);padding:4px 8px}
+.btn.ghost:hover{color:var(--ink)}
+.weeknav{display:flex;align-items:center;gap:6px}
+.weeknav .label{min-width:150px;text-align:center;font-weight:600}
+
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:8px 4px;text-align:center;border-bottom:1px solid var(--soft)}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+th.today{color:var(--accent)}
+th .d{display:block;font-family:var(--display);font-size:18px;letter-spacing:0;color:var(--ink)}
+th.today .d{color:var(--accent)}
+td.name{text-align:left;padding-left:0}
+.hname{font-weight:600}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:1px}
+.chk{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--line);background:transparent;display:inline-grid;place-items:center;transition:background .12s,border-color .12s}
+.chk:hover{border-color:var(--done)}
+.chk.on{background:var(--done);border-color:var(--done);color:#fff}
+.chk.future{opacity:.35;cursor:not-allowed}
+.chk svg{width:16px;height:16px}
+.streak{font-family:var(--display);font-size:22px;font-weight:700;line-height:1}
+.streak small{display:block;font-family:var(--body);font-size:10.5px;color:var(--muted);font-weight:500;letter-spacing:.04em}
+.streak.hot{color:var(--done)}
+td.actions{width:40px}
+.addrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.addrow input,.addrow select,.field input{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 10px}
+.addrow input[type=text]{flex:1 1 220px}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+
+.wheel{display:grid;place-items:center;position:relative;margin:4px auto 10px;width:190px;max-width:100%}
+.wheel .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.wheel .pct{font-family:var(--display);font-size:52px;font-weight:700;line-height:.9}
+.wheel .sub{font-size:12px;color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:92px;margin-top:8px}
+.day{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar{width:100%;max-width:26px;background:var(--soft);border-radius:5px;position:relative;flex:1;overflow:hidden}
+.bar i{position:absolute;left:0;right:0;bottom:0;background:var(--accent);border-radius:5px}
+.day span{font-size:10.5px;color:var(--muted);letter-spacing:.06em}
+.day.today span{color:var(--accent);font-weight:600}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--soft)}
+.stat b{display:block;font-family:var(--display);font-size:26px;line-height:1}
+.stat span{font-size:12px;color:var(--muted)}
+
+.goals{margin-top:18px}
+.tl-wrap{overflow-x:auto}
+.tl{min-width:680px}
+.tl-axis,.tl-row{display:grid;grid-template-columns:200px 1fr 56px;gap:12px;align-items:center}
+.tl-axis{padding-bottom:6px;border-bottom:1px solid var(--line)}
+.months{display:grid;grid-template-columns:repeat(12,1fr);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.months span{padding-left:4px;border-left:1px solid var(--soft)}
+.tl-row{padding:9px 0;border-bottom:1px solid var(--soft);cursor:pointer;border-radius:6px}
+.tl-row:hover{background:var(--soft)}
+.tl-row.sel{background:var(--accent-soft)}
+.tl-row .gt{font-weight:600;line-height:1.25}
+.tl-row .gd{font-size:12px;color:var(--muted)}
+.track{position:relative;height:26px}
+.track .grid12{position:absolute;inset:0;display:grid;grid-template-columns:repeat(12,1fr)}
+.track .grid12 i{border-left:1px solid var(--soft)}
+.span{position:absolute;top:9px;height:8px;border-radius:4px;background:var(--line)}
+.span i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--accent)}
+.span.done i{background:var(--done)}
+.pin{position:absolute;top:4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--panel);border:3px solid var(--accent)}
+.pin.done{border-color:var(--done);background:var(--done)}
+.pin.late{border-color:var(--warn)}
+.todayline{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--warn);pointer-events:none}
+.gp{font-family:var(--display);font-size:20px;font-weight:700;text-align:right}
+.gp.done{color:var(--done)}
+.tl-body{position:relative}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+.editor{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);align-items:end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.field input{width:100%}
+.field.wide{grid-column:1/-1}
+input[type=range]{accent-color:var(--accent);padding:0;border:0;background:transparent}
+.editor .acts{display:flex;flex-wrap:wrap;gap:8px}
+.note{font-size:12px;color:var(--muted);margin-top:18px}
+@media (max-width:520px){h1{font-size:36px}.weeknav .label{min-width:120px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const {useState,useEffect,useMemo} = React;
+const html = htm.bind(React.createElement);
+const KEY = "training-log-v1";
+const DOW = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const CATS = ["Training","Activity","Nutrition","Recovery","Mindset"];
+
+const pad = n => String(n).padStart(2,"0");
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = k => { const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); };
+const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const mondayOf = d => { const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const w=(x.getDay()+6)%7; return addDays(x,-w); };
+const uid = () => Math.random().toString(36).slice(2,9);
+const fmt = k => { const d=parse(k); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+
+function seed(){
+  const today = new Date(); const y = today.getFullYear();
+  const habits = [
+    {id:uid(),name:"Strength session, 45 min",cat:"Training",pattern:[1,0,1,0,1,1,0]},
+    {id:uid(),name:"10,000 steps",cat:"Activity",pattern:[1,1,1,1,1,0,1]},
+    {id:uid(),name:"Protein target, 140 g",cat:"Nutrition",pattern:[1,1,0,1,1,1,1]},
+    {id:uid(),name:"Sleep 7.5 h",cat:"Recovery",pattern:[1,1,1,1,1,1,1]},
+    {id:uid(),name:"Mobility, 10 min",cat:"Recovery",pattern:[0,1,1,0,1,0,1]},
+  ];
+  const checks = {};
+  habits.forEach((h,hi)=>{
+    const arr=[];
+    for(let i=1;i<=21;i++){ const d=addDays(today,-i); const w=(d.getDay()+6)%7; if(h.pattern[(w+hi)%7] && !(hi===4 && i>9)) arr.push(keyOf(d)); }
+    checks[h.id]=arr; delete h.pattern;
+  });
+  const goals = [
+    {id:uid(),title:"Run 5K under 25 minutes",start:`${y}-01-06`,target:`${y}-03-29`,progress:100,done:true},
+    {id:uid(),title:"Deadlift 1.5× bodyweight",start:`${y}-02-01`,target:`${y}-07-31`,progress:80,done:false},
+    {id:uid(),title:"Drop body fat to 18%",start:`${y}-04-01`,target:`${y}-10-15`,progress:55,done:false},
+    {id:uid(),title:"30 days of 30 min activity",start:`${y}-11-01`,target:`${y}-11-30`,progress:0,done:false},
+    {id:uid(),title:"Finish a half marathon",start:`${y}-06-01`,target:`${y}-12-12`,progress:40,done:false},
+  ];
+  return {habits,checks,goals,sample:true};
+}
+const blank = () => ({habits:[],checks:{},goals:[],sample:false});
+
+function load(){
+  try{ const raw=localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return seed();
+}
+function save(s){ try{ localStorage.setItem(KEY,JSON.stringify(s)); return true; }catch(e){ return false; } }
+
+function streaks(dates, todayKey){
+  const set = new Set(dates);
+  let cur=0; let d=parse(todayKey);
+  if(!set.has(todayKey)) d=addDays(d,-1);
+  while(set.has(keyOf(d))){ cur++; d=addDays(d,-1); }
+  const sorted=[...set].sort(); let best=0,run=0,prev=null;
+  for(const k of sorted){ const dt=parse(k); run = (prev && keyOf(addDays(prev,1))===k) ? run+1 : 1; best=Math.max(best,run); prev=dt; }
+  return {cur,best};
+}
+
+const Check = () => html`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>`;
+
+function DeleteBtn({onConfirm,label="Remove"}){
+  const [arm,setArm]=useState(false);
+  useEffect(()=>{ if(!arm) return; const t=setTimeout(()=>setArm(false),3000); return ()=>clearTimeout(t); },[arm]);
+  return arm
+    ? html`<button className="btn danger" onClick=${onConfirm}>Confirm</button>`
+    : html`<button className="btn ghost" aria-label=${label} title=${label} onClick=${()=>setArm(true)}>✕</button>`;
+}
+
+function Wheel({pct,done,total}){
+  const r=78, c=2*Math.PI*r, off=c*(1-pct/100);
+  return html`<div className="wheel">
+    <svg viewBox="0 0 190 190" width="190" height="190" style=${{maxWidth:"100%"}}>
+      <circle cx="95" cy="95" r=${r} fill="none" stroke="var(--soft)" strokeWidth="16"/>
+      <circle cx="95" cy="95" r=${r} fill="none" stroke=${pct>=80?"var(--done)":"var(--accent)"} strokeWidth="16" strokeLinecap="round"
+        strokeDasharray=${c} strokeDashoffset=${off} transform="rotate(-90 95 95)" style=${{transition:"stroke-dashoffset .5s ease"}}/>
+    </svg>
+    <div className="center"><div className="pct num">${pct}<span style=${{fontSize:"26px"}}>%</span></div><div className="sub num">${done} of ${total} check-ins</div></div>
+  </div>`;
+}
+
+function App(){
+  const [s,setS]=useState(load);
+  const [stored,setStored]=useState(true);
+  const todayKey = keyOf(new Date());
+  const [weekStart,setWeekStart]=useState(()=>keyOf(mondayOf(new Date())));
+  const [name,setName]=useState(""); const [cat,setCat]=useState("Training");
+  const [sel,setSel]=useState(null);
+  const [year,setYear]=useState(new Date().getFullYear());
+  const [ng,setNg]=useState({title:"",target:""});
+
+  useEffect(()=>{ setStored(save(s)); },[s]);
+  const up = fn => setS(prev => { const n=JSON.parse(JSON.stringify(prev)); fn(n); n.sample=false; return n; });
+
+  const days = useMemo(()=>Array.from({length:7},(_,i)=>keyOf(addDays(parse(weekStart),i))),[weekStart]);
+  const isThisWeek = weekStart===keyOf(mondayOf(new Date()));
+  const toggle=(hid,k)=>{ if(k>todayKey) return; up(n=>{ const a=n.checks[hid]||[]; n.checks[hid]= a.includes(k)? a.filter(x=>x!==k) : [...a,k]; }); };
+  const addHabit=e=>{ e.preventDefault(); const t=name.trim(); if(!t) return; up(n=>{ const id=uid(); n.habits.push({id,name:t,cat}); n.checks[id]=[]; }); setName(""); };
+
+  // weekly stats
+  const elapsed = days.filter(k=>k<=todayKey);
+  const total = s.habits.length*elapsed.length;
+  const done = s.habits.reduce((a,h)=>a+elapsed.filter(k=>(s.checks[h.id]||[]).includes(k)).length,0);
+  const pct = total? Math.round(done/total*100) : 0;
+  const perDay = days.map(k=> s.habits.length ? s.habits.filter(h=>(s.checks[h.id]||[]).includes(k)).length/s.habits.length : 0);
+  const st = s.habits.map(h=>streaks(s.checks[h.id]||[],todayKey));
+  const longest = st.reduce((m,x)=>Math.max(m,x.best),0);
+  const active = st.filter(x=>x.cur>0).length;
+
+  const weekLabel = (()=>{ const a=parse(days[0]), b=parse(days[6]); return `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]}`; })();
+
+  // timeline
+  const y0=new Date(year,0,1), y1=new Date(year+1,0,1), span=(y1-y0);
+  const pos = k => { const t=(parse(k)-y0)/span; return Math.max(0,Math.min(1,t))*100; };
+  const inYear = s.goals.filter(g=> g.target.slice(0,4)==String(year) || g.start.slice(0,4)==String(year)).sort((a,b)=>a.target.localeCompare(b.target));
+  const selGoal = s.goals.find(g=>g.id===sel);
+  const setGoal=(id,patch)=>up(n=>{ const g=n.goals.find(x=>x.id===id); Object.assign(g,patch); if(patch.done===true) g.progress=100; });
+  const addGoal=e=>{ e.preventDefault(); const t=ng.title.trim(); if(!t||!ng.target) return; const id=uid(); up(n=>{ n.goals.push({id,title:t,start:todayKey<ng.target?todayKey:ng.target,target:ng.target,progress:0,done:false}); }); setNg({title:"",target:""}); setSel(id); setYear(Number(ng.target.slice(0,4))); };
+  const todayPos = year===new Date().getFullYear() ? pos(todayKey) : null;
+  const achieved = s.goals.filter(g=>g.done && g.target.startsWith(String(year))).length;
+  const yearTotal = s.goals.filter(g=>g.target.startsWith(String(year))).length;
+
+  return html`
+  <header className="top">
+    <div><div className="eyebrow">Habits · Streaks · Milestones</div><h1>Training Log</h1></div>
+    <div className="meta num">${DOW[(new Date().getDay()+6)%7]}, ${fmt(todayKey)}</div>
+  </header>
+
+  ${s.sample && html`<div className="banner"><span>Sample habits and goals are loaded so you can see how it works. Any edit makes it yours.</span>
+    <button className="btn" onClick=${()=>{setS(blank());setSel(null);}}>Start blank</button></div>`}
+  ${!stored && html`<div className="banner"><span>This browser is blocking storage, so changes will be lost when you close the page.</span></div>`}
+
+  <div className="grid">
+    <section className="panel">
+      <div className="panel-head">
+        <h2>Daily habits</h2>
+        <div className="weeknav">
+          <button className="btn" aria-label="Previous week" onClick=${()=>setWeekStart(keyOf(addDays(parse(weekStart),-7)))}>‹</button>
+          <span className="label num">${weekLabel}</span>
+          <button className="btn" aria-label="Next week" disabled=${isThisWeek} style=${{opacity:isThisWeek?.4:1}} onClick=${()=>!isThisWeek&&setWeekStart(keyOf(addDays(parse(weekStart),7)))}>›</button>
+          ${!isThisWeek && html`<button className="btn ghost" onClick=${()=>setWeekStart(keyOf(mondayOf(new Date())))}>This week</button>`}
+        </div>
+      </div>
+      ${s.habits.length===0 ? html`<div className="empty">No habits yet. Add your first one below.</div>` : html`
+      <div className="table-wrap"><table>
+        <thead><tr><th style=${{textAlign:"left",paddingLeft:0}}>Habit</th>
+          ${days.map((k,i)=>html`<th key=${k} className=${k===todayKey?"today":""}>${DOW[i]}<span className="d num">${parse(k).getDate()}</span></th>`)}
+          <th>Streak</th><th></th></tr></thead>
+        <tbody>${s.habits.map((h,hi)=>html`<tr key=${h.id}>
+          <td className="name"><div className="hname">${h.name}</div><span className="tag">${h.cat}</span></td>
+          ${days.map(k=>{ const on=(s.checks[h.id]||[]).includes(k); const fut=k>todayKey;
+            return html`<td key=${k}><button className=${"chk"+(on?" on":"")+(fut?" future":"")} aria-pressed=${on} disabled=${fut}
+              aria-label=${`${h.name} on ${fmt(k)}`} onClick=${()=>toggle(h.id,k)}>${on&&html`<${Check}/>`}</button></td>`; })}
+          <td><div className=${"streak num"+(st[hi].cur>=7?" hot":"")}>${st[hi].cur}<small>best ${st[hi].best}</small></div></td>
+          <td className="actions"><${DeleteBtn} label=${"Remove "+h.name} onConfirm=${()=>up(n=>{ n.habits=n.habits.filter(x=>x.id!==h.id); delete n.checks[h.id]; })}/></td>
+        </tr>`)}</tbody>
+      </table></div>`}
+      <form className="addrow" onSubmit=${addHabit}>
+        <input id="habit-name" type="text" placeholder="New habit, e.g. 2 L water" value=${name} onInput=${e=>setName(e.target.value)} aria-label="Habit name"/>
+        <select id="habit-cat" value=${cat} onChange=${e=>setCat(e.target.value)} aria-label="Category">${CATS.map(c=>html`<option key=${c}>${c}</option>`)}</select>
+        <button className="btn primary" type="submit">Add habit</button>
+      </form>
+    </section>
+
+    <aside className="panel">
+      <div className="panel-head"><h2>Week score</h2><span className="eyebrow">${isThisWeek?"So far":"Full week"}</span></div>
+      <${Wheel} pct=${pct} done=${done} total=${total}/>
+      <div className="days" aria-label="Completion by day">
+        ${days.map((k,i)=>html`<div key=${k} className=${"day"+(k===todayKey?" today":"")} title=${`${Math.round(perDay[i]*100)}%`}>
+          <div className="bar"><i style=${{height:`${perDay[i]*100}%`}}></i></div><span>${DOW[i].slice(0,1)}</span></div>`)}
+      </div>
+      <div className="stats">
+        <div className="stat"><b className="num">${active}/${s.habits.length}</b><span>Streaks alive</span></div>
+        <div className="stat"><b className="num">${longest}<span style=${{fontSize:"15px"}}> days</span></b><span>Longest streak</span></div>
+      </div>
+    </aside>
+  </div>
+
+  <section className="panel goals">
+    <div className="panel-head">
+      <div><h2>${year} milestones</h2><div className="eyebrow num" style=${{marginTop:"4px"}}>${achieved} of ${yearTotal} achieved</div></div>
+      <div className="weeknav">
+        <button className="btn" aria-label="Previous year" onClick=${()=>setYear(year-1)}>‹</button>
+        <span className="label num" style=${{minWidth:"60px"}}>${year}</span>
+        <button className="btn" aria-label="Next year" onClick=${()=>setYear(year+1)}>›</button>
+      </div>
+    </div>
+    <div className="tl-wrap"><div className="tl">
+      <div className="tl-axis"><span className="eyebrow">Goal</span><div className="months">${MONTHS.map(m=>html`<span key=${m}>${m}</span>`)}</div><span className="eyebrow" style=${{textAlign:"right"}}>Done</span></div>
+      ${inYear.length===0 ? html`<div className="empty">No milestones for ${year}. Add one below.</div>` :
+        inYear.map(g=>{ const a=pos(g.start), b=pos(g.target); const late=!g.done && g.target<todayKey;
+        return html`<div key=${g.id} className=${"tl-row"+(sel===g.id?" sel":"")} role="button" tabIndex="0"
+            onClick=${()=>setSel(sel===g.id?null:g.id)} onKeyDown=${e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSel(sel===g.id?null:g.id);}}}>
+          <div><div className="gt">${g.title}</div><div className="gd num">${g.done?"Achieved":late?"Overdue":"Due"} · ${fmt(g.target)}</div></div>
+          <div className="track">
+            <div className="grid12">${MONTHS.map(m=>html`<i key=${m}></i>`)}</div>
+            <div className=${"span"+(g.done?" done":"")} style=${{left:a+"%",width:Math.max(b-a,.6)+"%"}}><i style=${{width:g.progress+"%"}}></i></div>
+            <div className=${"pin"+(g.done?" done":late?" late":"")} style=${{left:b+"%"}}></div>
+            ${todayPos!==null && html`<div className="todayline" style=${{left:todayPos+"%"}}></div>`}
+          </div>
+          <div className=${"gp num"+(g.done?" done":"")}>${g.progress}%</div>
+        </div>`; })}
+    </div></div>
+    <div className="legend"><span><i style=${{background:"var(--accent)"}}></i>In progress</span><span><i style=${{background:"var(--done)"}}></i>Achieved</span><span><i style=${{border:"2px solid var(--warn)"}}></i>Overdue</span><span><i style=${{borderLeft:"2px dashed var(--warn)",borderRadius:0,width:2}}></i>Today</span><span>Select a goal to edit it.</span></div>
+
+    ${selGoal && html`<div className="editor">
+      <div className="field wide"><label htmlFor="g-title">Goal</label><input id="g-title" value=${selGoal.title} onInput=${e=>setGoal(selGoal.id,{title:e.target.value})}/></div>
+      <div className="field"><label htmlFor="g-start">Start</label><input id="g-start" type="date" value=${selGoal.start} onChange=${e=>e.target.value&&setGoal(selGoal.id,{start:e.target.value})}/></div>
+      <div className="field"><label htmlFor="g-target">Target date</label><input id="g-target" type="date" value=${selGoal.target} onChange=${e=>e.target.value&&setGoal(selGoal.id,{target:e.target.value})}/></div>
+      <div className="field"><label htmlFor="g-prog">Progress · <span className="num">${selGoal.progress}%</span></label><input id="g-prog" type="range" min="0" max="100" step="5" value=${selGoal.progress} onInput=${e=>setGoal(selGoal.id,{progress:Number(e.target.value),done:Number(e.target.value)===100})}/></div>
+      <div className="acts">
+        <button className=${"btn"+(selGoal.done?"":" primary")} onClick=${()=>setGoal(selGoal.id,selGoal.done?{done:false,progress:90}:{done:true})}>${selGoal.done?"Reopen":"Mark achieved"}</button>
+        <${DeleteBtn} label="Delete goal" onConfirm=${()=>{ up(n=>{n.goals=n.goals.filter(x=>x.id!==selGoal.id);}); setSel(null); }}/>
+      </div>
+    </div>`}
+
+    <form className="addrow" onSubmit=${addGoal} style=${{marginTop:"18px"}}>
+      <input id="goal-title" type="text" placeholder="New milestone, e.g. 10 strict pull-ups" value=${ng.title} onInput=${e=>setNg({...ng,title:e.target.value})} aria-label="Milestone"/>
+      <input id="goal-date" type="date" value=${ng.target} onChange=${e=>setNg({...ng,target:e.target.value})} aria-label="Target date"/>
+      <button className="btn primary" type="submit">Add milestone</button>
+    </form>
+    <p className="note">Your data is saved in this browser only. It won't appear on another device or for anyone you share the link with.</p>
+  </section>`;
+}
+
+ReactDOM.createRoot(document.getElementById("app")).render(html`<${App}/>`);
+</script>
+</body>
+</html>
